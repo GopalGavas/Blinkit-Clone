@@ -21,12 +21,11 @@ const ProductAdmin = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const [showAddProduct, setShowAddProduct] = useState(false);
-
-  // edit modal
+  // modals
   const [editingProduct, setEditingProduct] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
 
-  /* -------------------- FETCH PRODUCTS -------------------- */
+  /* ---------------- FETCH PRODUCTS ---------------- */
 
   const fetchProducts = async () => {
     try {
@@ -53,14 +52,14 @@ const ProductAdmin = () => {
     }
   };
 
-  /* -------------------- CATEGORY DATA -------------------- */
+  /* ---------------- CATEGORY DATA ---------------- */
 
   const fetchCategories = async () => {
     try {
       const res = await Axios.get("/category");
       if (res.data.success) setCategories(res.data.data);
-    } catch (err) {
-      errorToast(err.response?.data?.message || "Failed to fetch categories");
+    } catch {
+      errorToast("Failed to fetch categories");
     }
   };
 
@@ -70,14 +69,12 @@ const ProductAdmin = () => {
         params: { categoryId },
       });
       if (res.data.success) setSubCategories(res.data.data);
-    } catch (err) {
-      errorToast(
-        err.response?.data?.message || "Failed to fetch Sub Categories"
-      );
+    } catch {
+      errorToast("Failed to fetch sub categories");
     }
   };
 
-  /* -------------------- DELETE PRODUCT -------------------- */
+  /* ---------------- DELETE PRODUCT ---------------- */
 
   const handleDelete = async (productId) => {
     const ok = window.confirm("Are you sure you want to delete this product?");
@@ -86,12 +83,12 @@ const ProductAdmin = () => {
     try {
       await Axios.delete(`/product/delete/${productId}`);
       fetchProducts();
-    } catch (err) {
-      errorToast(err.response?.data?.message || "Failed to Delete Product");
+    } catch {
+      errorToast("Failed to delete product");
     }
   };
 
-  /* -------------------- EFFECTS -------------------- */
+  /* ---------------- EFFECTS ---------------- */
 
   useEffect(() => {
     fetchCategories();
@@ -107,7 +104,7 @@ const ProductAdmin = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, search, category, subCategory]);
 
-  /* -------------------- UI -------------------- */
+  /* ---------------- UI ---------------- */
 
   return (
     <div className="space-y-6">
@@ -116,7 +113,7 @@ const ProductAdmin = () => {
         <h1 className="text-2xl font-bold">Product Management</h1>
 
         <button
-          onClick={() => setShowAddProduct(true)}
+          onClick={() => setShowCreate(true)}
           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         >
           + Add Product
@@ -161,7 +158,7 @@ const ProductAdmin = () => {
           className="border px-3 py-2 rounded"
           disabled={!category}
         >
-          <option value="">All SubCategories</option>
+          <option value="">All Sub Categories</option>
           {subCategories.map((s) => (
             <option key={s._id} value={s._id}>
               {s.name}
@@ -175,56 +172,92 @@ const ProductAdmin = () => {
         <p className="text-center py-10">Loading...</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
-          {products.map((product) => (
-            <div
-              key={product._id}
-              className="bg-white rounded-lg shadow p-3 flex flex-col h-full"
-            >
-              {/* IMAGE */}
-              <div className="aspect-square bg-gray-100 rounded mb-2 overflow-hidden">
-                {product.images?.[0] && (
-                  <img
-                    src={product.images[0]}
-                    className="w-full h-full object-cover"
-                    alt={product.name}
-                  />
+          {products.map((product) => {
+            const totalStock = product.variants?.reduce(
+              (sum, v) => sum + (v.stock || 0),
+              0
+            );
+
+            let stockStatus = "in";
+            if (totalStock === 0) stockStatus = "out";
+            else if (totalStock <= 5) stockStatus = "low";
+
+            return (
+              <div
+                key={product._id}
+                className="relative bg-white rounded-lg shadow p-3 flex flex-col h-full"
+              >
+                {/* STOCK BADGE */}
+                {stockStatus === "out" && (
+                  <span className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                    Out of Stock
+                  </span>
                 )}
-              </div>
 
-              {/* CONTENT */}
-              <div className="flex flex-col flex-1">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
-                    {product.name}
-                  </p>
+                {stockStatus === "low" && (
+                  <span className="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded">
+                    Low ({totalStock})
+                  </span>
+                )}
 
-                  <p className="text-xs text-gray-500">
-                    {product.category?.name} / {product.subCategory?.name}
-                  </p>
-
-                  <p className="text-green-600 font-semibold text-sm">
-                    ₹{product.variants?.[0]?.price ?? "--"}
-                  </p>
+                {/* IMAGE */}
+                <div className="aspect-square bg-gray-100 rounded mb-2 overflow-hidden">
+                  {product.images?.[0] && (
+                    <img
+                      src={product.images[0]}
+                      className="w-full h-full object-cover"
+                      alt={product.name}
+                    />
+                  )}
                 </div>
 
-                {/* ACTIONS — ALWAYS BOTTOM */}
-                <div className="flex gap-2 mt-auto pt-3">
-                  <button
-                    onClick={() => setEditingProduct(product)}
-                    className="flex-1 bg-blue-600 text-white text-xs py-1.5 rounded hover:bg-blue-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product._id)}
-                    className="flex-1 bg-red-600 text-white text-xs py-1.5 rounded hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
+                {/* CONTENT */}
+                <div className="flex flex-col flex-1">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
+                      {product.name}
+                    </p>
+
+                    <p className="text-xs text-gray-500">
+                      {product.category?.name} / {product.subCategory?.name}
+                    </p>
+
+                    <p className="text-green-600 font-semibold text-sm">
+                      ₹{product.variants?.[0]?.price ?? "--"}
+                    </p>
+
+                    <p
+                      className={`text-xs font-medium ${
+                        stockStatus === "out"
+                          ? "text-red-600"
+                          : stockStatus === "low"
+                          ? "text-yellow-600"
+                          : "text-green-600"
+                      }`}
+                    >
+                      Stock: {totalStock}
+                    </p>
+                  </div>
+
+                  {/* ACTIONS */}
+                  <div className="flex gap-2 mt-auto pt-3">
+                    <button
+                      onClick={() => setEditingProduct(product)}
+                      className="flex-1 bg-blue-600 text-white text-xs py-1.5 rounded hover:bg-blue-700"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="flex-1 bg-red-600 text-white text-xs py-1.5 rounded hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -261,6 +294,28 @@ const ProductAdmin = () => {
         </div>
       )}
 
+      {/* CREATE MODAL */}
+      {showCreate && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg p-6 relative">
+            <button
+              onClick={() => setShowCreate(false)}
+              className="absolute top-3 right-3 text-xl"
+            >
+              ✕
+            </button>
+
+            <ProductForm
+              mode="create"
+              onSuccess={() => {
+                setShowCreate(false);
+                fetchProducts();
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* EDIT MODAL */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -277,28 +332,6 @@ const ProductAdmin = () => {
               initialData={editingProduct}
               onSuccess={() => {
                 setEditingProduct(null);
-                fetchProducts();
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* ADD PRODUCT MODAL */}
-      {showAddProduct && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg p-6 relative">
-            <button
-              onClick={() => setShowAddProduct(false)}
-              className="absolute top-3 right-3 text-xl"
-            >
-              ✕
-            </button>
-
-            <ProductForm
-              mode="create"
-              onSuccess={() => {
-                setShowAddProduct(false);
                 fetchProducts();
               }}
             />
