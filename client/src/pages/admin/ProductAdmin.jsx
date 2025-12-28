@@ -21,6 +21,8 @@ const ProductAdmin = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const [showAddProduct, setShowAddProduct] = useState(false);
+
   // edit modal
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -110,7 +112,16 @@ const ProductAdmin = () => {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <h1 className="text-2xl font-bold">Product Management</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Product Management</h1>
+
+        <button
+          onClick={() => setShowAddProduct(true)}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          + Add Product
+        </button>
+      </div>
 
       {/* FILTERS */}
       <div className="bg-white p-4 rounded shadow flex flex-col lg:flex-row gap-4">
@@ -266,6 +277,28 @@ const ProductAdmin = () => {
               initialData={editingProduct}
               onSuccess={() => {
                 setEditingProduct(null);
+                fetchProducts();
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ADD PRODUCT MODAL */}
+      {showAddProduct && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg p-6 relative">
+            <button
+              onClick={() => setShowAddProduct(false)}
+              className="absolute top-3 right-3 text-xl"
+            >
+              ✕
+            </button>
+
+            <ProductForm
+              mode="create"
+              onSuccess={() => {
+                setShowAddProduct(false);
                 fetchProducts();
               }}
             />
