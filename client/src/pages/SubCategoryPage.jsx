@@ -67,27 +67,37 @@ const SubCategoryPage = () => {
     <main className="max-w-[1200px] mx-auto flex gap-4 mt-4 px-3 sm:px-0">
       {/* ================= SIDEBAR ================= */}
       <aside className="w-64 flex-shrink-0 border-r border-gray-200 h-[80vh] overflow-y-auto sticky top-4">
-        {subcategories.map((sub) => (
-          <div
-            key={sub._id}
-            onClick={() => setSelectedSubcategory(sub)}
-            className={`flex items-center gap-3 p-2 cursor-pointer rounded hover:bg-gray-100 ${
-              selectedSubcategory?._id === sub._id ? "bg-gray-100" : ""
-            }`}
-          >
-            <img
-              src={sub.image}
-              alt={sub.name}
-              className="w-12 h-12 object-cover rounded"
-            />
-            <span className="text-sm font-medium">{sub.name}</span>
+        {subcategories.length === 0 ? (
+          <div className="text-sm text-gray-500 text-center mt-10 px-4">
+            No subcategories available
           </div>
-        ))}
+        ) : (
+          subcategories.map((sub) => (
+            <div
+              key={sub._id}
+              onClick={() => setSelectedSubcategory(sub)}
+              className={`flex items-center gap-3 p-2 cursor-pointer rounded hover:bg-gray-100 ${
+                selectedSubcategory?._id === sub._id ? "bg-gray-100" : ""
+              }`}
+            >
+              <img
+                src={sub.image}
+                alt={sub.name}
+                className="w-12 h-12 object-cover rounded"
+              />
+              <span className="text-sm font-medium">{sub.name}</span>
+            </div>
+          ))
+        )}
       </aside>
 
       {/* ================= PRODUCTS ================= */}
       <section className="flex-1 bg-gray-50 p-4 rounded-lg">
-        {loading ? (
+        {subcategories.length === 0 ? (
+          <p className="text-center text-gray-500 mt-10">
+            No products available
+          </p>
+        ) : loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {new Array(8).fill(null).map((_, index) => (
               <div
@@ -112,7 +122,6 @@ const SubCategoryPage = () => {
                   key={product._id}
                   className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition flex flex-col"
                 >
-                  {/* IMAGE */}
                   <div className="aspect-square bg-gray-100 rounded mb-2 overflow-hidden">
                     {product.images?.[0] && (
                       <img
@@ -123,12 +132,10 @@ const SubCategoryPage = () => {
                     )}
                   </div>
 
-                  {/* NAME */}
                   <p className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
                     {product.name}
                   </p>
 
-                  {/* PRICE + CART */}
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-green-600 font-semibold text-sm">
                       ₹{defaultVariant?.price ?? "--"}
