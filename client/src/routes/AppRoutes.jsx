@@ -9,6 +9,7 @@ import SubCategoryAdmin from "../pages/admin/SubcategoryAdmin";
 import ProductAdmin from "../pages/admin/ProductAdmin";
 import ProductForm from "../pages/admin/ProductForm";
 import Profile from "../pages/Profile";
+import SubcategoryPage from "../pages/SubCategoryPage";
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const AppRoutes = () => {
         <Route path="products/create" element={<ProductForm />} />
       </Route>
       <Route path="/profile" element={<Profile />} />
+      <Route path="/subcategory/:categoryId" element={<SubcategoryPage />} />
     </Routes>
   );
 };

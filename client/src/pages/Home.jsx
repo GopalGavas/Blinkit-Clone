@@ -100,8 +100,8 @@ const Home = () => {
               : categories.map((category) => (
                   <div
                     key={category._id}
-                    onClick={() => navigate(`/category/${category.slug}`)}
                     className="cursor-pointer"
+                    onClick={() => navigate(`/subcategory/${category._id}`)}
                   >
                     <img
                       src={category.image}
