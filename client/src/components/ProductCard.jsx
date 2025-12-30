@@ -1,11 +1,18 @@
+import { useNavigate } from "react-router-dom";
+
 const ProductCard = ({ product, onAdd }) => {
+  const navigate = useNavigate();
+
   const defaultVariant =
     product.variants?.find((v) => v.isDefault) || product.variants?.[0];
 
   const outOfStock = !defaultVariant || defaultVariant.stock === 0;
 
   return (
-    <div className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition flex flex-col">
+    <div
+      className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition flex flex-col cursor-pointer"
+      onClick={() => navigate(`/product/${product.slug}`)}
+    >
       {/* IMAGE */}
       <div className="aspect-square bg-gray-100 rounded mb-2 overflow-hidden">
         {product.images?.[0] && (
@@ -22,8 +29,11 @@ const ProductCard = ({ product, onAdd }) => {
         {product.name}
       </p>
 
-      {/* PRICE + CART */}
-      <div className="flex items-center justify-between mt-2">
+      {/* PRICE + ADD */}
+      <div
+        className="flex items-center justify-between mt-2"
+        onClick={(e) => e.stopPropagation()} // ⬅️ IMPORTANT
+      >
         <span className="text-green-600 font-semibold text-sm">
           ₹{defaultVariant?.price ?? "--"}
         </span>
@@ -32,7 +42,7 @@ const ProductCard = ({ product, onAdd }) => {
           <span className="text-xs text-red-500 font-medium">Out of stock</span>
         ) : (
           <button
-            onClick={() => onAdd?.(product, defaultVariant)}
+            onClick={() => onAdd(product, defaultVariant)}
             className="border border-green-600 text-green-600 text-xs px-4 py-1 rounded-full hover:bg-green-50"
           >
             ADD

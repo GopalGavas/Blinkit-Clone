@@ -3,6 +3,11 @@ import { useParams } from "react-router-dom";
 import Axios from "../api/axios";
 import { errorToast } from "../utils/toast";
 
+import clockIcon from "../assets/clock-icon.png";
+import superfastDelivery from "../assets/10_minute_delivery.png";
+import bestPrices from "../assets/Best_Prices_Offers.png";
+import wideAssortment from "../assets/Wide_Assortment.png";
+
 const SingleProduct = () => {
   const { slug } = useParams();
 
@@ -90,7 +95,7 @@ const SingleProduct = () => {
 
           {/* Delivery Time */}
           <div className="inline-flex items-center gap-1 bg-gray-100 text-[10px] px-2 py-1 rounded">
-            <img src="/clock-icon.png" className="w-3" />8 mins
+            <img src={clockIcon} className="w-3" />8 mins
           </div>
 
           {/* ---------------- VARIANTS ---------------- */}
@@ -150,7 +155,7 @@ const SingleProduct = () => {
             </h3>
 
             <div className="flex gap-4">
-              <img src="/10_minute_delivery.png" className="w-10 h-10" />
+              <img src={superfastDelivery} className="w-10 h-10" />
               <div>
                 <p className="font-medium text-sm">Superfast Delivery</p>
                 <p className="text-xs text-gray-500">
@@ -160,7 +165,7 @@ const SingleProduct = () => {
             </div>
 
             <div className="flex gap-4">
-              <img src="/Best_Prices_Offers.png" className="w-10 h-10" />
+              <img src={bestPrices} className="w-10 h-10" />
               <div>
                 <p className="font-medium text-sm">Best Prices & Offers</p>
                 <p className="text-xs text-gray-500">
@@ -170,7 +175,7 @@ const SingleProduct = () => {
             </div>
 
             <div className="flex gap-4">
-              <img src="/Wide_Assortment.png" className="w-10 h-10" />
+              <img src={wideAssortment} className="w-10 h-10" />
               <div>
                 <p className="font-medium text-sm">Wide Assortment</p>
                 <p className="text-xs text-gray-500">

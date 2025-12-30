@@ -10,6 +10,7 @@ import ProductAdmin from "../pages/admin/ProductAdmin";
 import ProductForm from "../pages/admin/ProductForm";
 import Profile from "../pages/Profile";
 import SubcategoryPage from "../pages/SubCategoryPage";
+import SingleProduct from "../pages/SingleProduct";
 
 const AppRoutes = () => {
   return (
@@ -26,6 +27,7 @@ const AppRoutes = () => {
       </Route>
       <Route path="/profile" element={<Profile />} />
       <Route path="/subcategory/:categoryId" element={<SubcategoryPage />} />
+      <Route path="/product/:slug" element={<SingleProduct />} />
     </Routes>
   );
 };
