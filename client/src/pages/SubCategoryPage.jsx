@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Axios from "../api/axios";
 import ProductCard from "../components/ProductCard";
+import { addToCart } from "../services/cartApi";
 
 const SubCategoryPage = () => {
   const { categoryId } = useParams(); // category _id from URL
@@ -116,8 +117,11 @@ const SubCategoryPage = () => {
                 key={product._id}
                 product={product}
                 onAdd={(product, variant) => {
-                  console.log("ADD TO CART", product._id, variant._id);
-                  // later: dispatch(addToCart({ product, variant }))
+                  addToCart({
+                    productId: product._id,
+                    variantId: variant._id,
+                    quantity: 1,
+                  });
                 }}
               />
             ))}

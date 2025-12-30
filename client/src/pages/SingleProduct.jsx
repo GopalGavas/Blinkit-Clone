@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Axios from "../api/axios";
-import { errorToast } from "../utils/toast";
+import { errorToast, successToast } from "../utils/toast";
+import { addToCart } from "../services/cartApi";
 
 import clockIcon from "../assets/clock-icon.png";
 import superfastDelivery from "../assets/10_minute_delivery.png";
@@ -13,6 +14,7 @@ const SingleProduct = () => {
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
 
   const [activeImage, setActiveImage] = useState("");
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -23,6 +25,7 @@ const SingleProduct = () => {
     try {
       setLoading(true);
       const res = await Axios.get(`/product/${slug}`);
+
       if (res.data.success) {
         const data = res.data.data;
         setProduct(data);
@@ -30,6 +33,7 @@ const SingleProduct = () => {
         setActiveImage(data.images?.[0] || "");
         const defaultVariant =
           data.variants.find((v) => v.isDefault) || data.variants[0];
+
         setSelectedVariant(defaultVariant);
       }
     } catch (err) {
@@ -51,6 +55,33 @@ const SingleProduct = () => {
   if (!product) return null;
 
   const isOutOfStock = selectedVariant?.stock === 0;
+
+  /* ---------------- ADD TO CART ---------------- */
+
+  const handleAddToCart = async () => {
+    if (!selectedVariant) {
+      errorToast("Please select a variant");
+      return;
+    }
+
+    try {
+      setAdding(true);
+
+      const res = await addToCart({
+        productId: product._id,
+        variantId: selectedVariant._id,
+        quantity: 1,
+      });
+
+      if (res.success) {
+        successToast("Added to cart");
+      }
+    } catch (err) {
+      errorToast(err.response?.data?.message || "Failed to add to cart");
+    } finally {
+      setAdding(false);
+    }
+  };
 
   /* ---------------- UI ---------------- */
 
@@ -84,7 +115,6 @@ const SingleProduct = () => {
 
         {/* ---------------- PRODUCT DETAILS ---------------- */}
         <div className="flex-[1.2] space-y-4">
-          {/* Breadcrumb */}
           <p className="text-xs text-gray-500">
             Home / {product.category?.name} / {product.subCategory?.name}
           </p>
@@ -93,7 +123,6 @@ const SingleProduct = () => {
             {product.name}
           </h1>
 
-          {/* Delivery Time */}
           <div className="inline-flex items-center gap-1 bg-gray-100 text-[10px] px-2 py-1 rounded">
             <img src={clockIcon} className="w-3" />8 mins
           </div>
@@ -137,14 +166,15 @@ const SingleProduct = () => {
             </div>
 
             <button
-              disabled={isOutOfStock}
+              disabled={isOutOfStock || adding}
+              onClick={handleAddToCart}
               className={`px-6 py-2 rounded font-semibold text-sm ${
-                isOutOfStock
+                isOutOfStock || adding
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-green-600 text-white hover:bg-green-700"
               }`}
             >
-              Add to cart
+              {adding ? "Adding..." : "Add to cart"}
             </button>
           </div>
 
