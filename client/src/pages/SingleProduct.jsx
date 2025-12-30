@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Axios from "../api/axios";
 import { errorToast, successToast } from "../utils/toast";
-import { addToCart } from "../services/cartApi";
+import { useCart } from "../context/CartContext";
 
 import clockIcon from "../assets/clock-icon.png";
 import superfastDelivery from "../assets/10_minute_delivery.png";
@@ -11,6 +11,7 @@ import wideAssortment from "../assets/Wide_Assortment.png";
 
 const SingleProduct = () => {
   const { slug } = useParams();
+  const { addItem } = useCart();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,21 +20,16 @@ const SingleProduct = () => {
   const [activeImage, setActiveImage] = useState("");
   const [selectedVariant, setSelectedVariant] = useState(null);
 
-  /* ---------------- FETCH PRODUCT ---------------- */
-
   const fetchProduct = async () => {
     try {
       setLoading(true);
       const res = await Axios.get(`/product/${slug}`);
-
       if (res.data.success) {
         const data = res.data.data;
         setProduct(data);
-
         setActiveImage(data.images?.[0] || "");
         const defaultVariant =
           data.variants.find((v) => v.isDefault) || data.variants[0];
-
         setSelectedVariant(defaultVariant);
       }
     } catch (err) {
@@ -45,18 +41,12 @@ const SingleProduct = () => {
 
   useEffect(() => {
     fetchProduct();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
-  if (loading) {
-    return <p className="text-center py-20">Loading...</p>;
-  }
-
+  if (loading) return <p className="text-center py-20">Loading...</p>;
   if (!product) return null;
 
   const isOutOfStock = selectedVariant?.stock === 0;
-
-  /* ---------------- ADD TO CART ---------------- */
 
   const handleAddToCart = async () => {
     if (!selectedVariant) {
@@ -66,16 +56,12 @@ const SingleProduct = () => {
 
     try {
       setAdding(true);
-
-      const res = await addToCart({
+      await addItem({
         productId: product._id,
         variantId: selectedVariant._id,
         quantity: 1,
       });
-
-      if (res.success) {
-        successToast("Added to cart");
-      }
+      successToast("Product added to cart successfully");
     } catch (err) {
       errorToast(err.response?.data?.message || "Failed to add to cart");
     } finally {
@@ -83,12 +69,10 @@ const SingleProduct = () => {
     }
   };
 
-  /* ---------------- UI ---------------- */
-
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <div className="flex flex-col lg:flex-row gap-10">
-        {/* ---------------- IMAGE SECTION ---------------- */}
+        {/* IMAGE */}
         <div className="flex-1 flex flex-col items-center gap-3">
           <div className="w-full max-w-[350px] bg-white rounded-lg overflow-hidden">
             <img
@@ -113,7 +97,7 @@ const SingleProduct = () => {
           </div>
         </div>
 
-        {/* ---------------- PRODUCT DETAILS ---------------- */}
+        {/* DETAILS */}
         <div className="flex-[1.2] space-y-4">
           <p className="text-xs text-gray-500">
             Home / {product.category?.name} / {product.subCategory?.name}
@@ -127,10 +111,9 @@ const SingleProduct = () => {
             <img src={clockIcon} className="w-3" />8 mins
           </div>
 
-          {/* ---------------- VARIANTS ---------------- */}
+          {/* VARIANTS */}
           <div className="pt-4">
             <p className="text-sm font-medium mb-2">Select Unit</p>
-
             <div className="flex gap-3 flex-wrap">
               {product.variants.map((variant) => (
                 <button
@@ -152,14 +135,13 @@ const SingleProduct = () => {
             </div>
           </div>
 
-          {/* ---------------- PRICE & CART ---------------- */}
+          {/* PRICE + CART */}
           <div className="flex justify-between items-center pt-6">
             <div>
               <p className="text-lg font-bold text-gray-800">
                 ₹{selectedVariant?.price}
               </p>
               <p className="text-xs text-gray-500">(inclusive of all taxes)</p>
-
               {isOutOfStock && (
                 <p className="text-xs text-red-500 mt-1">Out of stock</p>
               )}
@@ -178,7 +160,7 @@ const SingleProduct = () => {
             </button>
           </div>
 
-          {/* ---------------- WHY SHOP ---------------- */}
+          {/* WHY SHOP */}
           <div className="pt-8 space-y-5">
             <h3 className="font-semibold text-gray-800">
               Why shop from Blinkit?

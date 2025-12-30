@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Axios from "../api/axios";
 import ProductCard from "../components/ProductCard";
-import { addToCart } from "../services/cartApi";
+import { useCart } from "../context/CartContext";
+import toast from "react-hot-toast"; // ✅ ADD THIS
 
 const SubCategoryPage = () => {
-  const { categoryId } = useParams(); // category _id from URL
+  const { categoryId } = useParams();
+
+  const { addItem } = useCart(); // ✅ cart context
 
   const [subcategories, setSubcategories] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
@@ -20,7 +23,7 @@ const SubCategoryPage = () => {
 
       if (res.data.success) {
         setSubcategories(res.data.data);
-        setSelectedSubcategory(res.data.data[0] || null); // select first
+        setSelectedSubcategory(res.data.data[0] || null);
       }
     } catch (error) {
       console.error("Error fetching subcategories:", error);
@@ -95,11 +98,7 @@ const SubCategoryPage = () => {
 
       {/* ================= PRODUCTS ================= */}
       <section className="flex-1 bg-gray-50 p-4 rounded-lg">
-        {subcategories.length === 0 ? (
-          <p className="text-center text-gray-500 mt-10">
-            No products available
-          </p>
-        ) : loading ? (
+        {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {new Array(8).fill(null).map((_, index) => (
               <div
@@ -117,11 +116,13 @@ const SubCategoryPage = () => {
                 key={product._id}
                 product={product}
                 onAdd={(product, variant) => {
-                  addToCart({
+                  addItem({
                     productId: product._id,
                     variantId: variant._id,
                     quantity: 1,
                   });
+
+                  toast.success("Added to cart"); // ✅ TOAST
                 }}
               />
             ))}

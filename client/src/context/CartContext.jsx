@@ -1,41 +1,53 @@
-// context/CartContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
-import * as cartApi from "@/services/cartApi";
+import * as cartApi from "../services/cartApi";
 
-const CartContext = createContext();
+const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(null);
+  const [cartItems, setCartItems] = useState([]);
+  const [summary, setSummary] = useState({
+    totalItems: 0,
+    totalQuantity: 0,
+    totalAmount: 0,
+  });
   const [loading, setLoading] = useState(false);
 
   const fetchCart = async () => {
     setLoading(true);
     try {
       const res = await cartApi.getCart();
-      setCart(res.data.data);
+      const data = res.data?.data;
+
+      setCartItems(data?.items || []);
+      setSummary(data?.summary || {});
+    } catch (err) {
+      console.error("Fetch cart failed", err);
+      setCartItems([]);
+      setSummary({ totalItems: 0, totalQuantity: 0, totalAmount: 0 });
     } finally {
       setLoading(false);
     }
   };
 
-  const addItem = async ({ productId, variantId, quantity = 1 }) => {
-    await cartApi.addToCart({ productId, variantId, quantity });
-    fetchCart();
+  const addItem = async (payload) => {
+    await cartApi.addToCart(payload);
+    await fetchCart();
   };
 
   const updateQty = async (cartItemId, quantity) => {
     await cartApi.updateCartQty({ cartItemId, quantity });
-    fetchCart();
+    await fetchCart();
   };
 
   const removeItem = async (cartItemId) => {
     await cartApi.removeCartItem(cartItemId);
-    fetchCart();
+    await fetchCart();
   };
 
   const clear = async () => {
     await cartApi.clearCart();
-    setCart(null);
+    setCartItems([]);
+    setSummary({ totalItems: 0, totalQuantity: 0, totalAmount: 0 });
   };
 
   useEffect(() => {
@@ -45,7 +57,9 @@ export const CartProvider = ({ children }) => {
   return (
     <CartContext.Provider
       value={{
-        cart,
+        cart: cartItems,
+        summary,
+        totalQuantity: summary.totalQuantity, // ✅ DIRECT FROM BACKEND
         loading,
         addItem,
         updateQty,
