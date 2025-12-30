@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Axios from "../api/axios";
+import ProductCard from "../components/ProductCard";
 
 const SubCategoryPage = () => {
   const { categoryId } = useParams(); // category _id from URL
@@ -110,50 +111,16 @@ const SubCategoryPage = () => {
           <p className="text-center text-gray-500 mt-10">No products found</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {products.map((product) => {
-              const defaultVariant =
-                product.variants?.find((v) => v.isDefault) ||
-                product.variants?.[0];
-
-              const outOfStock = !defaultVariant || defaultVariant.stock === 0;
-
-              return (
-                <div
-                  key={product._id}
-                  className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition flex flex-col"
-                >
-                  <div className="aspect-square bg-gray-100 rounded mb-2 overflow-hidden">
-                    {product.images?.[0] && (
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="w-full h-full object-contain"
-                      />
-                    )}
-                  </div>
-
-                  <p className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
-                    {product.name}
-                  </p>
-
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-green-600 font-semibold text-sm">
-                      ₹{defaultVariant?.price ?? "--"}
-                    </span>
-
-                    {outOfStock ? (
-                      <span className="text-xs text-red-500 font-medium">
-                        Out of stock
-                      </span>
-                    ) : (
-                      <button className="border border-green-600 text-green-600 text-xs px-4 py-1 rounded-full hover:bg-green-50">
-                        ADD
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            {products.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                onAdd={(product, variant) => {
+                  console.log("ADD TO CART", product._id, variant._id);
+                  // later: dispatch(addToCart({ product, variant }))
+                }}
+              />
+            ))}
           </div>
         )}
       </section>
