@@ -11,15 +11,15 @@ import wideAssortment from "../assets/Wide_Assortment.png";
 
 const SingleProduct = () => {
   const { slug } = useParams();
-  const { addItem } = useCart();
+  const { items: cartItems, addItem, updateQuantity, removeItem } = useCart();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-
   const [activeImage, setActiveImage] = useState("");
   const [selectedVariant, setSelectedVariant] = useState(null);
 
+  /* ================= FETCH PRODUCT ================= */
   const fetchProduct = async () => {
     try {
       setLoading(true);
@@ -28,9 +28,10 @@ const SingleProduct = () => {
         const data = res.data.data;
         setProduct(data);
         setActiveImage(data.images?.[0] || "");
+
         const defaultVariant =
-          data.variants.find((v) => v.isDefault) || data.variants[0];
-        setSelectedVariant(defaultVariant);
+          data.variants?.find((v) => v.isDefault) || data.variants?.[0];
+        if (defaultVariant) setSelectedVariant(defaultVariant);
       }
     } catch (err) {
       errorToast(err.response?.data?.message || "Failed to load product");
@@ -44,16 +45,22 @@ const SingleProduct = () => {
   }, [slug]);
 
   if (loading) return <p className="text-center py-20">Loading...</p>;
-  if (!product) return null;
+  if (!product || !selectedVariant) return null;
 
-  const isOutOfStock = selectedVariant?.stock === 0;
+  const isOutOfStock = selectedVariant.stock === 0;
 
+  /* ================= CART ITEM (MATCH BY VARIANT) ================= */
+  const cartItem = cartItems?.find(
+    (item) =>
+      item.productId === product._id &&
+      item.variant?.variantId === selectedVariant._id
+  );
+
+  const reachedStockLimit =
+    cartItem && cartItem.quantity >= selectedVariant.stock;
+
+  /* ================= ADD TO CART ================= */
   const handleAddToCart = async () => {
-    if (!selectedVariant) {
-      errorToast("Please select a variant");
-      return;
-    }
-
     try {
       setAdding(true);
       await addItem({
@@ -61,7 +68,7 @@ const SingleProduct = () => {
         variantId: selectedVariant._id,
         quantity: 1,
       });
-      successToast("Product added to cart successfully");
+      successToast("Product added to cart");
     } catch (err) {
       errorToast(err.response?.data?.message || "Failed to add to cart");
     } finally {
@@ -83,7 +90,7 @@ const SingleProduct = () => {
           </div>
 
           <div className="flex flex-wrap justify-center gap-2">
-            {product.images.map((img, i) => (
+            {product.images?.map((img, i) => (
               <button
                 key={i}
                 onClick={() => setActiveImage(img)}
@@ -115,13 +122,13 @@ const SingleProduct = () => {
           <div className="pt-4">
             <p className="text-sm font-medium mb-2">Select Unit</p>
             <div className="flex gap-3 flex-wrap">
-              {product.variants.map((variant) => (
+              {product.variants?.map((variant) => (
                 <button
                   key={variant._id}
                   onClick={() => setSelectedVariant(variant)}
                   disabled={variant.stock === 0}
                   className={`border rounded px-5 py-2 text-sm flex flex-col items-center ${
-                    selectedVariant?._id === variant._id
+                    selectedVariant._id === variant._id
                       ? "border-green-600 bg-green-50"
                       : "border-gray-300"
                   } ${
@@ -139,25 +146,68 @@ const SingleProduct = () => {
           <div className="flex justify-between items-center pt-6">
             <div>
               <p className="text-lg font-bold text-gray-800">
-                ₹{selectedVariant?.price}
+                ₹{selectedVariant.price}
               </p>
               <p className="text-xs text-gray-500">(inclusive of all taxes)</p>
+
               {isOutOfStock && (
                 <p className="text-xs text-red-500 mt-1">Out of stock</p>
               )}
+
+              {reachedStockLimit && (
+                <p className="text-xs text-red-500 mt-1">
+                  Maximum stock reached
+                </p>
+              )}
             </div>
 
-            <button
-              disabled={isOutOfStock || adding}
-              onClick={handleAddToCart}
-              className={`px-6 py-2 rounded font-semibold text-sm ${
-                isOutOfStock || adding
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-green-600 text-white hover:bg-green-700"
-              }`}
-            >
-              {adding ? "Adding..." : "Add to cart"}
-            </button>
+            {cartItem ? (
+              /* STEPPER */
+              <div className="flex items-center border border-green-600 rounded-full overflow-hidden">
+                <button
+                  className="px-4 py-2 text-green-600"
+                  onClick={() =>
+                    cartItem.quantity === 1
+                      ? removeItem(cartItem.cartItemId)
+                      : updateQuantity(
+                          cartItem.cartItemId,
+                          cartItem.quantity - 1
+                        )
+                  }
+                >
+                  −
+                </button>
+
+                <span className="px-3 font-medium">{cartItem.quantity}</span>
+
+                <button
+                  disabled={reachedStockLimit}
+                  className={`px-4 py-2 ${
+                    reachedStockLimit
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-green-600"
+                  }`}
+                  onClick={() =>
+                    updateQuantity(cartItem.cartItemId, cartItem.quantity + 1)
+                  }
+                >
+                  +
+                </button>
+              </div>
+            ) : (
+              /* ADD */
+              <button
+                disabled={isOutOfStock || adding}
+                onClick={handleAddToCart}
+                className={`px-6 py-2 rounded font-semibold text-sm ${
+                  isOutOfStock || adding
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-green-600 text-white hover:bg-green-700"
+                }`}
+              >
+                {adding ? "Adding..." : "Add to cart"}
+              </button>
+            )}
           </div>
 
           {/* WHY SHOP */}

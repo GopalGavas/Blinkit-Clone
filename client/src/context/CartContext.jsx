@@ -1,10 +1,15 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useAuth } from "./AuthContext";
-import { getCart, updateCartQty, removeCartItem } from "../services/cartApi";
+import {
+  getCart,
+  addToCart,
+  updateCartQty,
+  removeCartItem,
+  clearCart,
+} from "../services/cartApi";
 
-const CartContext = createContext();
+const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
@@ -13,7 +18,6 @@ export const CartProvider = ({ children }) => {
   const lastUserIdRef = useRef(null);
 
   /* ================= FETCH CART ================= */
-
   const fetchCart = async () => {
     try {
       const res = await getCart();
@@ -27,7 +31,6 @@ export const CartProvider = ({ children }) => {
   };
 
   /* ================= AUTH SYNC ================= */
-
   useEffect(() => {
     if (!isAuthenticated) {
       setItems([]);
@@ -42,14 +45,29 @@ export const CartProvider = ({ children }) => {
     }
   }, [isAuthenticated, user?._id]);
 
-  /* ================= UPDATE QTY (STEPPER) ================= */
+  /* ================= ADD ITEM ================= */
+  const addItem = async ({ productId, variantId, quantity = 1 }) => {
+    try {
+      const res = await addToCart({ productId, variantId, quantity });
 
+      if (!res.data?.success) {
+        throw new Error(res.data?.message || "Add to cart failed");
+      }
+
+      // IMPORTANT: sync with backend formatted data
+      await fetchCart();
+    } catch (err) {
+      console.error("Add to cart failed", err);
+      throw err;
+    }
+  };
+
+  /* ================= UPDATE QTY ================= */
   const updateQuantity = async (cartItemId, quantity) => {
     if (!cartItemId) return;
 
     const prevItems = [...items];
 
-    // Use cartItemId, not _id
     setItems((prev) =>
       prev.map((item) =>
         item.cartItemId === cartItemId ? { ...item, quantity } : item
@@ -58,9 +76,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       const res = await updateCartQty({ cartItemId, quantity });
-      if (!res.data?.success) {
-        throw new Error("Update failed");
-      }
+      if (!res.data?.success) throw new Error("Update failed");
     } catch (err) {
       console.error("Failed to update quantity", err);
       setItems(prevItems); // rollback
@@ -68,17 +84,28 @@ export const CartProvider = ({ children }) => {
   };
 
   /* ================= REMOVE ITEM ================= */
-
   const removeItem = async (cartItemId) => {
-    const prevItems = [...items];
+    if (!cartItemId) return;
 
-    setItems((prev) => prev.filter((item) => item._id !== cartItemId));
+    const prevItems = [...items];
+    setItems((prev) => prev.filter((item) => item.cartItemId !== cartItemId));
 
     try {
-      await removeCartItem(cartItemId);
+      const res = await removeCartItem(cartItemId);
+      if (!res.data?.success) throw new Error("Remove failed");
     } catch (err) {
       console.error("Failed to remove item", err);
       setItems(prevItems); // rollback
+    }
+  };
+
+  /* ================= CLEAR CART ================= */
+  const clearAll = async () => {
+    try {
+      await clearCart();
+      setItems([]);
+    } catch (err) {
+      console.error("Failed to clear cart", err);
     }
   };
 
@@ -88,10 +115,12 @@ export const CartProvider = ({ children }) => {
     <CartContext.Provider
       value={{
         items,
+        addItem,
         updateQuantity,
         removeItem,
-        totalQuantity,
+        clearAll,
         fetchCart,
+        totalQuantity,
       }}
     >
       {children}
@@ -99,4 +128,10 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) {
+    throw new Error("useCart must be used within CartProvider");
+  }
+  return ctx;
+};
