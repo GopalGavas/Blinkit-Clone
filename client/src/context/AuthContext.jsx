@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await Axios.get("/user/logout");
+    await Axios.post("/user/logout");
     localStorage.removeItem("token");
     setUser(null);
   };
