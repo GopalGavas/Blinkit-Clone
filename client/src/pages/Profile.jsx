@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Axios from "../api/axios";
 import { useAuth } from "../context/AuthContext";
+import AddressSection from "./AddressSection";
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -201,6 +202,7 @@ const Profile = () => {
           </button>
         </div>
       </div>
+      <AddressSection />
     </div>
   );
 };
