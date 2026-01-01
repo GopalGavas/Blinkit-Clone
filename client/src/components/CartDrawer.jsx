@@ -1,9 +1,17 @@
 // CartDrawer.jsx
 import { useCart } from "../context/CartContext";
 import CartItem from "./CartItem"; // single, fixed version
+import { useNavigate } from "react-router-dom";
 
 const CartDrawer = ({ open, onClose }) => {
+  const navigate = useNavigate();
+
   const { items, updateQuantity, removeItem } = useCart();
+
+  const handleCheckout = () => {
+    onClose();
+    navigate("/checkout");
+  };
 
   if (!open) return null;
 
@@ -37,7 +45,10 @@ const CartDrawer = ({ open, onClose }) => {
 
         {items.length > 0 && (
           <div className="p-4 border-t">
-            <button className="w-full bg-green-600 text-white py-2 rounded">
+            <button
+              onClick={handleCheckout}
+              className="w-full bg-green-600 text-white py-2 rounded"
+            >
               Proceed to Checkout
             </button>
           </div>

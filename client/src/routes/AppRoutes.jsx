@@ -11,6 +11,8 @@ import ProductForm from "../pages/admin/ProductForm";
 import Profile from "../pages/Profile";
 import SubcategoryPage from "../pages/SubCategoryPage";
 import SingleProduct from "../pages/SingleProduct";
+import Checkout from "../pages/Checkout";
+import OrderSuccess from "../pages/OrderSuccess";
 
 const AppRoutes = () => {
   return (
@@ -28,6 +30,8 @@ const AppRoutes = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/subcategory/:categoryId" element={<SubcategoryPage />} />
       <Route path="/product/:slug" element={<SingleProduct />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/order-success" element={<OrderSuccess />} />
     </Routes>
   );
 };
