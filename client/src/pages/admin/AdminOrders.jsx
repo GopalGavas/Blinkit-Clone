@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import axios from "../../api/axios";
 import { getAdminOrders } from "../../services/orderApi";
+import { errorToast } from "../../utils/toast";
 
 const ORDER_STATUSES = [
+  "PLACED",
   "CONFIRMED",
   "PACKED",
   "OUT_FOR_DELIVERY",
   "DELIVERED",
   "CANCELLED",
 ];
+
+const PAYMENT_STATUSES = ["PENDING", "PAID"];
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -36,20 +40,31 @@ const AdminOrders = () => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
-  const updateOrderStatus = async (orderId, status) => {
+  const updateOrderStatus = async (orderId, orderStatus, paymentStatus) => {
     setUpdatingId(orderId);
     try {
-      const res = await axios.patch(`/order/${orderId}/status`, { status });
+      const res = await axios.patch(`/order/${orderId}/status`, {
+        orderStatus,
+        paymentStatus,
+      });
       if (res.data.success) {
         setOrders((prev) =>
           prev.map((order) =>
-            order._id === orderId ? { ...order, orderStatus: status } : order
+            order._id === orderId
+              ? {
+                  ...order,
+                  orderStatus: orderStatus || order.orderStatus,
+                  payment: paymentStatus
+                    ? { ...order.payment, status: paymentStatus }
+                    : order.payment,
+                }
+              : order
           )
         );
       }
     } catch (err) {
-      console.error("Failed to update status", err);
-      alert("Failed to update order status");
+      console.error("Failed to update order", err);
+      errorToast("Failed to update the payment/order status");
     } finally {
       setUpdatingId(null);
     }
@@ -166,20 +181,53 @@ const AdminOrders = () => {
                 </p>
               </div>
 
-              {/* STATUS UPDATE */}
-              <div className="flex items-center gap-3">
-                <select
-                  className="border rounded px-3 py-2 text-sm"
-                  value={order.orderStatus}
-                  disabled={updatingId === order._id}
-                  onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                >
-                  {ORDER_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
+              {/* STATUS & PAYMENT UPDATE */}
+              <div className="flex flex-col md:flex-row md:items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium">Order Status:</label>
+                  <select
+                    className="border rounded px-3 py-2 text-sm"
+                    value={order.orderStatus}
+                    disabled={updatingId === order._id}
+                    onChange={(e) =>
+                      updateOrderStatus(order._id, e.target.value)
+                    }
+                  >
+                    {ORDER_STATUSES.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* COD payment update */}
+                {order.payment.method === "COD" && (
+                  <div className="flex items-center gap-3">
+                    <label className="text-sm font-medium">
+                      Payment Status:
+                    </label>
+                    <select
+                      className="border rounded px-3 py-2 text-sm"
+                      value={order.payment.status}
+                      disabled={updatingId === order._id}
+                      onChange={(e) =>
+                        updateOrderStatus(
+                          order._id,
+                          order.orderStatus,
+                          e.target.value
+                        )
+                      }
+                    >
+                      {PAYMENT_STATUSES.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 {updatingId === order._id && (
                   <span className="text-xs text-gray-500">Updating...</span>
                 )}

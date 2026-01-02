@@ -187,7 +187,9 @@ export const getOrderDetailsController = async (req, res) => {
 export const updateOrderStatusController = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { status } = req.body;
+    const { orderStatus, paymentStatus } = req.body;
+
+    const allowedPaymentStatus = ["PENDING", "PAID", "FAILED"];
 
     const allowedStatus = [
       "CONFIRMED",
@@ -197,7 +199,7 @@ export const updateOrderStatusController = async (req, res) => {
       "CANCELLED",
     ];
 
-    if (!allowedStatus.includes(status)) {
+    if (!allowedStatus.includes(orderStatus)) {
       return res.status(400).json({
         message: "Invalid order status",
         error: true,
@@ -205,11 +207,22 @@ export const updateOrderStatusController = async (req, res) => {
       });
     }
 
-    const order = await OrderModel.findByIdAndUpdate(
-      orderId,
-      { orderStatus: status },
-      { new: true }
-    );
+    if (!allowedPaymentStatus.includes(paymentStatus)) {
+      return res.status(400).json({
+        message: "Invalid order status",
+        error: true,
+        success: false,
+      });
+    }
+
+    const updatedObj = {};
+
+    if (orderStatus) updatedObj.orderStatus = orderStatus;
+    if (paymentStatus) updatedObj["payment.status"] = paymentStatus;
+
+    const order = await OrderModel.findByIdAndUpdate(orderId, updatedObj, {
+      new: true,
+    });
 
     if (!order) {
       return res.status(404).json({
