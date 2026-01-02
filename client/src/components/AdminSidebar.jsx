@@ -32,6 +32,13 @@ const AdminSidebar = ({ closeSidebar }) => {
         >
           Products
         </NavLink>
+        <NavLink
+          to="/admin/orders"
+          className={linkClass}
+          onClick={closeSidebar}
+        >
+          Manage Orders
+        </NavLink>
       </nav>
     </aside>
   );

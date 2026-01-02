@@ -233,3 +233,39 @@ export const updateOrderStatusController = async (req, res) => {
     });
   }
 };
+
+export const getAllOrdersAdminController = async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const orders = await OrderModel.find()
+      .populate("userId", "name email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalOrders = await OrderModel.countDocuments();
+
+    return res.json({
+      message: "All orders (admin)",
+      success: true,
+      error: false,
+      data: {
+        orders,
+        pagination: {
+          totalOrders,
+          currentPage: page,
+          totalPages: Math.ceil(totalOrders / limit),
+        },
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+      error: true,
+      success: false,
+    });
+  }
+};

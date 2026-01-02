@@ -15,6 +15,7 @@ import Checkout from "../pages/Checkout";
 import OrderSuccess from "../pages/OrderSuccess";
 import OrderDetails from "../pages/OrderDetails";
 import MyOrders from "../pages/MyOrders";
+import AdminOrders from "../pages/admin/AdminOrders";
 
 const AppRoutes = () => {
   return (
@@ -28,6 +29,7 @@ const AppRoutes = () => {
         <Route path="subcategories" element={<SubCategoryAdmin />} />
         <Route path="products" element={<ProductAdmin />} />
         <Route path="products/create" element={<ProductForm />} />
+        <Route path="orders" element={<AdminOrders />} />
       </Route>
       <Route path="/profile" element={<Profile />} />
       <Route path="/subcategory/:categoryId" element={<SubcategoryPage />} />
