@@ -13,6 +13,8 @@ import SubcategoryPage from "../pages/SubCategoryPage";
 import SingleProduct from "../pages/SingleProduct";
 import Checkout from "../pages/Checkout";
 import OrderSuccess from "../pages/OrderSuccess";
+import OrderDetails from "../pages/OrderDetails";
+import MyOrders from "../pages/MyOrders";
 
 const AppRoutes = () => {
   return (
@@ -32,6 +34,8 @@ const AppRoutes = () => {
       <Route path="/product/:slug" element={<SingleProduct />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/order-success" element={<OrderSuccess />} />
+      <Route path="/orders" element={<MyOrders />} />
+      <Route path="/orders/:orderId" element={<OrderDetails />} />
     </Routes>
   );
 };
