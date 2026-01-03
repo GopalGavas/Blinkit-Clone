@@ -95,9 +95,18 @@ const Navbar = () => {
                     onClick={() => setShowMenu((p) => !p)}
                     className="flex items-center gap-2"
                   >
-                    <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold">
-                      {user?.name?.[0]?.toUpperCase()}
+                    <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold overflow-hidden">
+                      {user?.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt="avatar"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        user?.name?.[0]?.toUpperCase()
+                      )}
                     </div>
+
                     <span className="hidden sm:block">{user?.name}</span>
                   </button>
 
