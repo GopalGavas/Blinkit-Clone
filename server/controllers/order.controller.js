@@ -199,7 +199,7 @@ export const updateOrderStatusController = async (req, res) => {
       "CANCELLED",
     ];
 
-    if (!allowedStatus.includes(orderStatus)) {
+    if (orderStatus && !allowedStatus.includes(orderStatus)) {
       return res.status(400).json({
         message: "Invalid order status",
         error: true,
@@ -207,7 +207,7 @@ export const updateOrderStatusController = async (req, res) => {
       });
     }
 
-    if (!allowedPaymentStatus.includes(paymentStatus)) {
+    if (paymentStatus && !allowedPaymentStatus.includes(paymentStatus)) {
       return res.status(400).json({
         message: "Invalid order status",
         error: true,
