@@ -29,10 +29,16 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const res = await Axios.post("/user/login", { email, password });
+
+    if (!res.data.success) {
+      throw new Error(res.data.message || "Invalid credentials");
+    }
+
     if (res.data.success) {
       localStorage.setItem("token", res.data.token);
       await fetchUser();
     }
+
     return res;
   };
 

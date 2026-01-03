@@ -63,6 +63,17 @@ const Login = () => {
           required
         />
 
+        <div className="flex justify-end mb-3">
+          <Link
+            to="/forgot-password"
+            className={`text-sm ${
+              error ? "text-red-600 font-medium underline" : "text-green-600"
+            }`}
+          >
+            Forgot password?
+          </Link>
+        </div>
+
         <button
           type="submit"
           disabled={loading}

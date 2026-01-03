@@ -16,6 +16,9 @@ import OrderSuccess from "../pages/OrderSuccess";
 import OrderDetails from "../pages/OrderDetails";
 import MyOrders from "../pages/MyOrders";
 import AdminOrders from "../pages/admin/AdminOrders";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import VerifyOtp from "../pages/auth/VerifyOtp";
+import ResetPassword from "../pages/auth/ResetPassword";
 
 const AppRoutes = () => {
   return (
@@ -24,6 +27,10 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/verify-otp" element={<VerifyOtp />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
       <Route path="/admin" element={<AdminLayout />}>
         <Route path="categories" element={<CategoryAdmin />} />
         <Route path="subcategories" element={<SubCategoryAdmin />} />
