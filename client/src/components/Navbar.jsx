@@ -5,6 +5,7 @@ import { useCart } from "../context/CartContext";
 import { useState, useEffect, useRef } from "react";
 import CartDrawer from "./CartDrawer";
 import Axios from "../api/axios";
+import BlinkitLogo from "../assets/blinkit-logo.svg";
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -91,8 +92,13 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
-            <Link to="/" className="text-2xl font-bold text-green-600">
-              BlinkIt
+
+            <Link to="/">
+              <img
+                src={BlinkitLogo}
+                alt="blinkit-logo"
+                className="h-16 sm:h-20 w-16 sm:w-20 object-contain"
+              />
             </Link>
 
             {/* ================= SEARCH ================= */}

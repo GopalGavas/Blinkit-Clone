@@ -7,13 +7,11 @@ const ProductCard = ({ product }) => {
 
   if (!product) return null;
 
-  /* ✅ DEFAULT VARIANT (no change in behavior) */
   const defaultVariant =
     product.variants?.find((v) => v.isDefault) || product.variants?.[0];
 
   const outOfStock = !defaultVariant || defaultVariant.stock === 0;
 
-  /* ✅ PRICE CALCULATION (added, non-breaking) */
   const originalPrice = defaultVariant?.price ?? 0;
   let finalPrice = originalPrice;
 
@@ -28,7 +26,6 @@ const ProductCard = ({ product }) => {
 
   finalPrice = Math.max(finalPrice, 0);
 
-  /* 🔍 find cart item by productId + variantId (unchanged) */
   const cartItem = cartItems?.find(
     (item) =>
       item.productId === product._id &&
@@ -37,11 +34,23 @@ const ProductCard = ({ product }) => {
 
   return (
     <div
-      className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition flex flex-col cursor-pointer border border-gray-200"
+      className="
+        bg-white rounded-lg
+        p-2 sm:p-3
+        shadow-sm hover:shadow-md transition
+        flex flex-col cursor-pointer
+        border border-gray-200
+        h-full
+      "
       onClick={() => navigate(`/product/${product.slug}`)}
     >
       {/* IMAGE */}
-      <div className="aspect-square bg-gray-100 rounded mb-2 overflow-hidden">
+      <div
+        className="
+          aspect-square bg-gray-100 rounded
+          mb-2 overflow-hidden
+        "
+      >
         {product.images?.[0] && (
           <img
             src={product.images[0]}
@@ -52,13 +61,21 @@ const ProductCard = ({ product }) => {
       </div>
 
       {/* NAME */}
-      <p className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
+      <p
+        className="
+          text-xs sm:text-sm
+          font-medium line-clamp-2
+          min-h-[2.25rem] sm:min-h-[2.5rem]
+        "
+      >
         {product.name}
       </p>
 
-      {/* ✅ VARIANT LABEL (NEW, SAFE ADDITION) */}
+      {/* VARIANT LABEL */}
       {defaultVariant?.label && (
-        <p className="text-xs text-gray-500 mt-1">{defaultVariant.label}</p>
+        <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
+          {defaultVariant.label}
+        </p>
       )}
 
       {/* PRICE + ACTION */}
@@ -66,26 +83,26 @@ const ProductCard = ({ product }) => {
         className="flex items-center justify-between mt-2"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-green-600 font-semibold text-sm">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="text-green-600 font-semibold text-xs sm:text-sm">
             ₹{finalPrice}
           </span>
 
-          {/* ✅ STRIKED PRICE IF DISCOUNT EXISTS */}
           {finalPrice < originalPrice && (
-            <span className="text-xs text-gray-400 line-through">
+            <span className="text-[11px] sm:text-xs text-gray-400 line-through">
               ₹{originalPrice}
             </span>
           )}
         </div>
 
         {outOfStock ? (
-          <span className="text-xs text-red-500 font-medium">Out of stock</span>
+          <span className="text-[11px] sm:text-xs text-red-500 font-medium">
+            Out of stock
+          </span>
         ) : cartItem ? (
-          /* STEPPER (unchanged) */
           <div className="flex items-center border border-green-600 rounded-full overflow-hidden">
             <button
-              className="px-3 text-green-600"
+              className="px-2 sm:px-3 text-green-600 text-sm"
               onClick={() =>
                 cartItem.quantity === 1
                   ? removeItem(cartItem.cartItemId)
@@ -95,12 +112,12 @@ const ProductCard = ({ product }) => {
               −
             </button>
 
-            <span className="px-2 text-sm font-medium">
+            <span className="px-1.5 sm:px-2 text-xs sm:text-sm font-medium">
               {cartItem.quantity}
             </span>
 
             <button
-              className="px-3 text-green-600"
+              className="px-2 sm:px-3 text-green-600 text-sm"
               onClick={() =>
                 updateQuantity(cartItem.cartItemId, cartItem.quantity + 1)
               }
@@ -109,7 +126,6 @@ const ProductCard = ({ product }) => {
             </button>
           </div>
         ) : (
-          /* ADD (unchanged) */
           <button
             onClick={() =>
               addItem({
@@ -118,7 +134,12 @@ const ProductCard = ({ product }) => {
                 quantity: 1,
               })
             }
-            className="border border-green-600 text-green-600 text-xs px-4 py-1 rounded-full hover:bg-green-50"
+            className="
+              border border-green-600 text-green-600
+              text-[11px] sm:text-xs
+              px-3 sm:px-4 py-1
+              rounded-full hover:bg-green-50
+            "
           >
             ADD
           </button>
