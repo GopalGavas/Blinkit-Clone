@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useState, useEffect, useRef } from "react";
 import CartDrawer from "./CartDrawer";
+import Axios from "../api/axios";
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -11,19 +13,24 @@ const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [openCart, setOpenCart] = useState(false);
 
+  /* ================= SEARCH STATE ================= */
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearch, setShowSearch] = useState(false);
+
   const navigate = useNavigate();
   const menuRef = useRef(null);
+  const searchRef = useRef(null);
 
   /* ================= CLOSE STATES ON LOGOUT ================= */
   useEffect(() => {
     if (!isAuthenticated) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpenCart(false);
       setShowMenu(false);
     }
   }, [isAuthenticated]);
 
-  /* ================= CLICK OUTSIDE ================= */
+  /* ================= CLICK OUTSIDE USER MENU ================= */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -33,6 +40,43 @@ const Navbar = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  /* ================= CLICK OUTSIDE SEARCH ================= */
+  useEffect(() => {
+    const handleSearchClose = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener("mousedown", handleSearchClose);
+    return () => document.removeEventListener("mousedown", handleSearchClose);
+  }, []);
+
+  /* ================= SEARCH API (DEBOUNCED) ================= */
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      setShowSearch(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await Axios.get(
+          `/product?search=${encodeURIComponent(searchTerm)}&limit=5`
+        );
+
+        if (res.data.success) {
+          setSearchResults(res.data.data);
+          setShowSearch(true);
+        }
+      } catch (err) {
+        console.error("Search failed", err);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const handleLogout = async () => {
     await logout();
@@ -51,18 +95,44 @@ const Navbar = () => {
               BlinkIt
             </Link>
 
-            {/* Search */}
-            <div className="flex-1 mx-4">
+            {/* ================= SEARCH ================= */}
+            <div className="flex-1 mx-4 relative" ref={searchRef}>
               <input
                 type="text"
                 placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full border rounded px-4 py-2 focus:ring-2 focus:ring-green-500"
               />
+
+              {showSearch && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-white border rounded shadow-md mt-1 z-50">
+                  {searchResults.map((product) => (
+                    <button
+                      key={product._id}
+                      onClick={() => {
+                        navigate(`/product/${product._id}`);
+                        setSearchTerm("");
+                        setShowSearch(false);
+                      }}
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 w-full text-left"
+                    >
+                      <img
+                        src={product.images?.[0]}
+                        alt={product.name}
+                        className="w-10 h-10 object-cover rounded"
+                      />
+                      <span className="text-sm font-medium">
+                        {product.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Cart + User */}
+            {/* ================= CART + USER ================= */}
             <div className="flex items-center gap-4">
-              {/* Cart Icon */}
               {isAuthenticated && (
                 <button className="relative" onClick={() => setOpenCart(true)}>
                   <svg
@@ -88,7 +158,6 @@ const Navbar = () => {
                 </button>
               )}
 
-              {/* User Menu */}
               {isAuthenticated ? (
                 <div className="relative" ref={menuRef}>
                   <button
@@ -121,7 +190,6 @@ const Navbar = () => {
                         </p>
                       </div>
 
-                      {/* Common */}
                       <Link
                         to="/profile"
                         className="block px-4 py-2 text-sm hover:bg-gray-100"
@@ -136,7 +204,6 @@ const Navbar = () => {
                         My Orders
                       </Link>
 
-                      {/* ================= ADMIN LINKS ================= */}
                       {user?.role === "ADMIN" && (
                         <>
                           <div className="border-t my-1"></div>
@@ -158,7 +225,6 @@ const Navbar = () => {
                           >
                             Products
                           </Link>
-
                           <Link
                             to="/admin/orders"
                             className="block px-4 py-2 text-sm hover:bg-gray-100"
@@ -192,7 +258,6 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Cart Drawer */}
       <CartDrawer open={openCart} onClose={() => setOpenCart(false)} />
     </>
   );
