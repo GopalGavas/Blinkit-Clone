@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Axios from "../api/axios";
+import HomeProductRows from "../components/HomeProductRows";
 
 // HERO IMAGES
 import heroBanner from "../assets/hero-banner-1.jpg";
@@ -113,6 +114,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      <HomeProductRows />
     </main>
   );
 };

@@ -37,7 +37,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <div
-      className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition flex flex-col cursor-pointer"
+      className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition flex flex-col cursor-pointer border border-gray-200"
       onClick={() => navigate(`/product/${product.slug}`)}
     >
       {/* IMAGE */}
