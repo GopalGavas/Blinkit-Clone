@@ -7,12 +7,28 @@ const ProductCard = ({ product }) => {
 
   if (!product) return null;
 
+  /* ✅ DEFAULT VARIANT (no change in behavior) */
   const defaultVariant =
     product.variants?.find((v) => v.isDefault) || product.variants?.[0];
 
   const outOfStock = !defaultVariant || defaultVariant.stock === 0;
 
-  // 🔍 find cart item by both productId and variantId
+  /* ✅ PRICE CALCULATION (added, non-breaking) */
+  const originalPrice = defaultVariant?.price ?? 0;
+  let finalPrice = originalPrice;
+
+  if (defaultVariant?.discount?.type === "PERCENT") {
+    finalPrice =
+      originalPrice - (originalPrice * defaultVariant.discount.value) / 100;
+  }
+
+  if (defaultVariant?.discount?.type === "FLAT") {
+    finalPrice = originalPrice - defaultVariant.discount.value;
+  }
+
+  finalPrice = Math.max(finalPrice, 0);
+
+  /* 🔍 find cart item by productId + variantId (unchanged) */
   const cartItem = cartItems?.find(
     (item) =>
       item.productId === product._id &&
@@ -40,19 +56,33 @@ const ProductCard = ({ product }) => {
         {product.name}
       </p>
 
+      {/* ✅ VARIANT LABEL (NEW, SAFE ADDITION) */}
+      {defaultVariant?.label && (
+        <p className="text-xs text-gray-500 mt-1">{defaultVariant.label}</p>
+      )}
+
       {/* PRICE + ACTION */}
       <div
         className="flex items-center justify-between mt-2"
         onClick={(e) => e.stopPropagation()}
       >
-        <span className="text-green-600 font-semibold text-sm">
-          ₹{defaultVariant?.price ?? "--"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-green-600 font-semibold text-sm">
+            ₹{finalPrice}
+          </span>
+
+          {/* ✅ STRIKED PRICE IF DISCOUNT EXISTS */}
+          {finalPrice < originalPrice && (
+            <span className="text-xs text-gray-400 line-through">
+              ₹{originalPrice}
+            </span>
+          )}
+        </div>
 
         {outOfStock ? (
           <span className="text-xs text-red-500 font-medium">Out of stock</span>
         ) : cartItem ? (
-          /* STEPPER */
+          /* STEPPER (unchanged) */
           <div className="flex items-center border border-green-600 rounded-full overflow-hidden">
             <button
               className="px-3 text-green-600"
@@ -79,7 +109,7 @@ const ProductCard = ({ product }) => {
             </button>
           </div>
         ) : (
-          /* ADD */
+          /* ADD (unchanged) */
           <button
             onClick={() =>
               addItem({
