@@ -7,7 +7,6 @@ const SubCategoryAdmin = () => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [filterCategory, setFilterCategory] = useState("");
-
   const [loading, setLoading] = useState(false);
 
   // CREATE FORM
@@ -90,10 +89,8 @@ const SubCategoryAdmin = () => {
     const payload = {};
 
     if (editForm.name !== originalEditForm.name) payload.name = editForm.name;
-
     if (editForm.image !== originalEditForm.image)
       payload.image = editForm.image;
-
     if (editForm.category !== originalEditForm.category)
       payload.category = editForm.category;
 
@@ -130,7 +127,6 @@ const SubCategoryAdmin = () => {
 
     try {
       const res = await Axios.delete(`/subcategory/delete/${id}`);
-
       if (res.data.success) {
         successToast("SubCategory deleted successfully");
         fetchSubCategories(filterCategory);
@@ -213,48 +209,51 @@ const SubCategoryAdmin = () => {
         ))}
       </select>
 
-      {/* TABLE */}
-      <div className="overflow-x-auto bg-white rounded shadow">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-100 text-center">
-            <tr>
-              <th className="p-2">Image</th>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody className="text-center">
-            {subCategories.map((s) => (
-              <tr key={s._id} className="border-t align-middle">
-                <td className="p-2 flex justify-center">
-                  <img src={s.image} className="h-12 rounded" />
-                </td>
-                <td>{s.name}</td>
-                <td>{s.category?.name}</td>
-                <td className="p-2">
-                  <div className="flex justify-center gap-3">
-                    <button
-                      onClick={() => {
-                        setEditForm(s);
-                        setOriginalEditForm(s);
-                      }}
-                      className="text-blue-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(s._id)}
-                      className="text-red-600"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
+      {/* TABLE WITH SCROLLABLE CONTAINER */}
+      <div className="bg-white rounded shadow">
+        <div className="max-h-[420px] overflow-y-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-100 text-center sticky top-0 z-10">
+              <tr>
+                <th className="p-2">Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="text-center">
+              {subCategories.map((s) => (
+                <tr key={s._id} className="border-t align-middle">
+                  <td className="p-2 flex justify-center">
+                    <img src={s.image} className="h-12 rounded" />
+                  </td>
+                  <td>{s.name}</td>
+                  <td>{s.category?.name}</td>
+                  <td className="p-2">
+                    <div className="flex justify-center gap-3">
+                      <button
+                        onClick={() => {
+                          setEditForm(s);
+                          setOriginalEditForm(s);
+                        }}
+                        className="text-blue-600"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(s._id)}
+                        className="text-red-600"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* EDIT MODAL */}
