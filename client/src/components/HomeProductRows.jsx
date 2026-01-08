@@ -80,6 +80,17 @@ export default HomeProductRows;
 const ProductRow = ({ row, onSeeAll }) => {
   const scrollRef = useRef(null);
 
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollButtons = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  };
+
   const scroll = (direction) => {
     if (!scrollRef.current) return;
 
@@ -88,6 +99,10 @@ const ProductRow = ({ row, onSeeAll }) => {
       behavior: "smooth",
     });
   };
+
+  useEffect(() => {
+    updateScrollButtons();
+  }, [row.products.length]);
 
   return (
     <div className="space-y-3">
@@ -107,18 +122,22 @@ const ProductRow = ({ row, onSeeAll }) => {
 
       {/* SCROLLER */}
       <div className="relative">
-        {/* LEFT ARROW (DESKTOP ONLY) */}
-        <button
-          onClick={() => scroll("left")}
-          className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10
-                     w-8 h-8 bg-green-600 text-white shadow rounded-full items-center justify-center"
-        >
-          ‹
-        </button>
+        {/* LEFT ARROW */}
+        {canScrollLeft && (
+          <button
+            onClick={() => scroll("left")}
+            className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10
+                       w-8 h-8 bg-green-600 text-white shadow rounded-full
+                       items-center justify-center"
+          >
+            ‹
+          </button>
+        )}
 
         {/* PRODUCTS */}
         <div
           ref={scrollRef}
+          onScroll={updateScrollButtons}
           className="flex gap-4 overflow-x-auto scrollbar-hide py-2"
         >
           {row.products.map((product) => (
@@ -132,14 +151,17 @@ const ProductRow = ({ row, onSeeAll }) => {
           ))}
         </div>
 
-        {/* RIGHT ARROW (DESKTOP ONLY) */}
-        <button
-          onClick={() => scroll("right")}
-          className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10
-                     w-8 h-8 bg-green-600 text-white shadow rounded-full items-center justify-center"
-        >
-          ›
-        </button>
+        {/* RIGHT ARROW */}
+        {canScrollRight && (
+          <button
+            onClick={() => scroll("right")}
+            className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10
+                       w-8 h-8 bg-green-600 text-white shadow rounded-full
+                       items-center justify-center"
+          >
+            ›
+          </button>
+        )}
       </div>
     </div>
   );
