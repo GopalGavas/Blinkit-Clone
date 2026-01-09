@@ -50,9 +50,7 @@ const HomeProductRows = () => {
 
       setRows(categoryRows);
     } catch (err) {
-      errorToast(
-        err.response?.data?.message || "Failed to load home products rows"
-      );
+      errorToast(err.response?.data?.message || "Failed to load products rows");
     } finally {
       setLoading(false);
     }
