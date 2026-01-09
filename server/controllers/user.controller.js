@@ -211,8 +211,8 @@ export async function logoutController(req, res) {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: false, // true in production (HTTPS)
-      sameSite: "Lax",
+      secure: true, // true in production (HTTPS)
+      sameSite: "none",
     };
 
     res.clearCookie("accessToken", cookieOptions);
