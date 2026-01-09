@@ -118,7 +118,7 @@ const Navbar = () => {
                     <button
                       key={product._id}
                       onClick={() => {
-                        navigate(`/product/${product._id}`);
+                        navigate(`/product/${product.slug}`);
                         setSearchTerm("");
                         setShowSearch(false);
                       }}
