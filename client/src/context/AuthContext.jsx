@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import Axios from "../api/axios";
+import { errorToast } from "../utils/toast";
 
 const AuthContext = createContext(null);
 
@@ -15,8 +16,9 @@ export const AuthProvider = ({ children }) => {
       if (res.data.success) {
         setUser(res.data.data);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      errorToast(err.response?.data?.message);
+
       setUser(null);
     } finally {
       setLoading(false);

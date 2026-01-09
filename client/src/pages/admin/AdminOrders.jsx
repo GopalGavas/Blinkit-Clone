@@ -28,7 +28,9 @@ const AdminOrders = () => {
           setOrders(res.data.data.orders || []);
         }
       } catch (err) {
-        console.error("Failed to fetch admin orders", err);
+        errorToast(
+          err.response?.data?.message || "Failed to fetch admin orders"
+        );
       } finally {
         setLoading(false);
       }
@@ -63,8 +65,10 @@ const AdminOrders = () => {
         );
       }
     } catch (err) {
-      console.error("Failed to update order", err);
-      errorToast("Failed to update the payment/order status");
+      errorToast(
+        err.response?.data?.message ||
+          "Failed to update the payment/order status"
+      );
     } finally {
       setUpdatingId(null);
     }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Axios from "../api/axios";
 import HomeProductRows from "../components/HomeProductRows";
+import { errorToast } from "../utils/toast";
 
 // HERO IMAGES
 import heroBanner from "../assets/hero-banner-1.jpg";
@@ -20,8 +21,8 @@ const Home = () => {
       if (res.data.success) {
         setCategories(res.data.data);
       }
-    } catch (error) {
-      console.error("Failed to fetch categories", error);
+    } catch (err) {
+      errorToast(err.response?.data?.message || "Failed to fetch Categories");
     } finally {
       setLoading(false);
     }

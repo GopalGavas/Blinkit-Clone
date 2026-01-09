@@ -4,6 +4,7 @@ import Axios from "../api/axios";
 import ProductCard from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
+import { errorToast } from "../utils/toast";
 
 const SubCategoryPage = () => {
   const { categoryId } = useParams();
@@ -22,8 +23,8 @@ const SubCategoryPage = () => {
         setSubcategories(res.data.data);
         setSelectedSubcategory(res.data.data[0] || null);
       }
-    } catch (error) {
-      console.error("Error fetching subcategories:", error);
+    } catch (err) {
+      errorToast(err.response?.data?.message || "Error fetching subcategories");
     }
   };
 
@@ -38,8 +39,8 @@ const SubCategoryPage = () => {
         `/product/${categorySlug}/${subCategorySlug}`
       );
       if (res.data.success) setProducts(res.data.data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+    } catch (err) {
+      errorToast(err.response?.data?.message || "Error fetching products");
     } finally {
       setLoading(false);
     }

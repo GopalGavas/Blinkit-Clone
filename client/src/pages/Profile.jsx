@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Axios from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import AddressSection from "./AddressSection";
+import { errorToast } from "../utils/toast";
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -72,7 +73,7 @@ const Profile = () => {
         avatarRef.current.value = "";
       }
     } catch (err) {
-      console.error(err);
+      errorToast(err.response?.data?.message);
     } finally {
       setLoading(false);
     }

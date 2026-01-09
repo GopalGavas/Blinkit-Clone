@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from "../api/axios";
 import ProductCard from "./ProductCard";
+import { errorToast } from "../utils/toast";
 
 const MAX_ROWS = 7;
 const PRODUCTS_PER_ROW = 10;
@@ -49,7 +50,9 @@ const HomeProductRows = () => {
 
       setRows(categoryRows);
     } catch (err) {
-      console.error("Failed to load home product rows", err);
+      errorToast(
+        err.response?.data?.message || "Failed to load home products rows"
+      );
     } finally {
       setLoading(false);
     }

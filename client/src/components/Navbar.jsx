@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import CartDrawer from "./CartDrawer";
 import Axios from "../api/axios";
 import BlinkitLogo from "../assets/blinkit-logo.svg";
+import { errorToast } from "../utils/toast";
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -72,7 +73,7 @@ const Navbar = () => {
           setShowSearch(true);
         }
       } catch (err) {
-        console.error("Search failed", err);
+        errorToast(err.response?.data?.message || "Search failed");
       }
     }, 400);
 

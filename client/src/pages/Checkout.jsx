@@ -25,7 +25,7 @@ const Checkout = () => {
         if (def) setSelectedAddressId(def._id);
       }
     } catch (err) {
-      console.error(err);
+      errorToast(err.response?.data?.message);
     }
   };
 
@@ -69,8 +69,7 @@ const Checkout = () => {
         });
       }
     } catch (err) {
-      console.error(err);
-      errorToast("Failed to place order");
+      errorToast(err.response?.data?.message || "Failed to place order");
     } finally {
       setLoading(false);
     }

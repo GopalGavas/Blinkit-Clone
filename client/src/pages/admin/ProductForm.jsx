@@ -69,7 +69,9 @@ const ProductForm = ({ mode = "create", initialData = null, onSuccess }) => {
           uploaded.push(res.data.data.url);
         }
       } catch (err) {
-        console.error(err);
+        errorToast(
+          err.response?.data?.message || "Failed to fetch Sub Categories"
+        );
       }
     }
 

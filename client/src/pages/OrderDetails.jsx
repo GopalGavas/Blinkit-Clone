@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getOrderDetails } from "../services/orderApi";
+import { errorToast } from "../utils/toast";
 
 const statusStyles = {
   PLACED: "bg-blue-100 text-blue-700",
@@ -23,7 +24,7 @@ const OrderDetails = () => {
           setOrder(res.data.data);
         }
       } catch (err) {
-        console.error("Failed to fetch order", err);
+        errorToast(err.response?.data?.message || "Failed to fetch Orders");
       } finally {
         setLoading(false);
       }

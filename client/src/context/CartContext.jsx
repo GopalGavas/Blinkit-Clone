@@ -8,6 +8,7 @@ import {
   removeCartItem,
   clearCart,
 } from "../services/cartApi";
+import { errorToast } from "../utils/toast";
 
 const CartContext = createContext(null);
 
@@ -25,7 +26,7 @@ export const CartProvider = ({ children }) => {
         setItems(res.data.data.items || []);
       }
     } catch (err) {
-      console.error("Failed to fetch cart", err);
+      errorToast(err.response?.data?.message || "Failed to fetch cart");
       setItems([]);
     }
   };
@@ -57,7 +58,7 @@ export const CartProvider = ({ children }) => {
       // IMPORTANT: sync with backend formatted data
       await fetchCart();
     } catch (err) {
-      console.error("Add to cart failed", err);
+      errorToast(err.response?.data?.message || "Add to  cart failed");
       throw err;
     }
   };
@@ -78,7 +79,7 @@ export const CartProvider = ({ children }) => {
       const res = await updateCartQty({ cartItemId, quantity });
       if (!res.data?.success) throw new Error("Update failed");
     } catch (err) {
-      console.error("Failed to update quantity", err);
+      errorToast(err.response?.data?.message || "Failed to update quantity");
       setItems(prevItems); // rollback
     }
   };
@@ -94,7 +95,7 @@ export const CartProvider = ({ children }) => {
       const res = await removeCartItem(cartItemId);
       if (!res.data?.success) throw new Error("Remove failed");
     } catch (err) {
-      console.error("Failed to remove item", err);
+      errorToast(err.response?.data?.message || "Failed to remove item");
       setItems(prevItems); // rollback
     }
   };
@@ -105,7 +106,7 @@ export const CartProvider = ({ children }) => {
       await clearCart();
       setItems([]);
     } catch (err) {
-      console.error("Failed to clear cart", err);
+      errorToast(err.response?.data?.message || "Failed to clear cart");
     }
   };
 

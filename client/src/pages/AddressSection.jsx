@@ -6,6 +6,7 @@ import {
   deleteAddress,
   setDefaultAddress,
 } from "../services/addressApi";
+import { errorToast } from "../utils/toast";
 
 const AddressSection = () => {
   const [addresses, setAddresses] = useState([]);
@@ -30,7 +31,7 @@ const AddressSection = () => {
         setAddresses(res.data.data);
       }
     } catch (err) {
-      console.error("Failed to fetch addresses", err);
+      errorToast(err.response?.data?.message || "Failed to fetch addresses");
     } finally {
       setLoading(false);
     }
@@ -60,7 +61,7 @@ const AddressSection = () => {
       setEditingId(null);
       fetchAddresses();
     } catch (err) {
-      console.error("Address save failed", err);
+      errorToast(err.response?.data?.message || "Address save failed");
     }
   };
 
@@ -82,7 +83,9 @@ const AddressSection = () => {
       await setDefaultAddress(addressId);
       fetchAddresses(); // re-fetch list
     } catch (err) {
-      console.error("Failed to set default address", err);
+      errorToast(
+        err.response?.data?.message || "Failed to set default address"
+      );
     }
   };
 
@@ -92,7 +95,7 @@ const AddressSection = () => {
       await deleteAddress(id);
       fetchAddresses();
     } catch (err) {
-      console.error("Delete failed", err);
+      errorToast(err.response?.data?.message || "Delete Failed");
     }
   };
 
