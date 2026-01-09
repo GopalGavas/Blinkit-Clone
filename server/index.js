@@ -16,6 +16,7 @@ import addressRouter from "./routes/address.route.js";
 import orderRouter from "./routes/order.route.js";
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(
   cors({
     credentials: true,

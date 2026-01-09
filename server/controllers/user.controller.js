@@ -177,8 +177,8 @@ export async function loginController(req, res) {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: false, // LOCALHOST
-      sameSite: "Lax",
+      secure: true,
+      sameSite: "none",
     };
 
     res.cookie("accessToken", accessToken, cookieOptions);
