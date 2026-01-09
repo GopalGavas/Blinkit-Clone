@@ -211,7 +211,7 @@ export async function logoutController(req, res) {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: true, // true in production (HTTPS)
+      secure: true,
       sameSite: "none",
     };
 
