@@ -1,7 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import Axios from "../api/axios";
-import { errorToast } from "../utils/toast";
 
 const AuthContext = createContext(null);
 
@@ -16,9 +15,9 @@ export const AuthProvider = ({ children }) => {
       if (res.data.success) {
         setUser(res.data.data);
       }
+      // eslint-disable-next-line no-unused-vars
     } catch (err) {
-      errorToast(err.response?.data?.message);
-
+      // errorToast(err.response?.data?.message);
       setUser(null);
     } finally {
       setLoading(false);
