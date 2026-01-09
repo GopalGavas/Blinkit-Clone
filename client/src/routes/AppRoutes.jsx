@@ -5,7 +5,7 @@ import Register from "../pages/auth/Register";
 import VerifyEmail from "../pages/auth/VerifyEmail";
 import AdminLayout from "../components/AdminLayout";
 import CategoryAdmin from "../pages/admin/CategoryAdmin";
-import SubCategoryAdmin from "../pages/admin/SubcategoryAdmin";
+import SubCategoryAdmin from "../pages/admin/SubCategoryAdmin";
 import ProductAdmin from "../pages/admin/ProductAdmin";
 import ProductForm from "../pages/admin/ProductForm";
 import Profile from "../pages/Profile";
